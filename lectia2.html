@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecția 2 - Teorie și Practică Completă</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root { --primary: #1e3a8a; --success: #10b981; --error: #ef4444; --accent: #f59e0b; --bg: #f0f9ff; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); padding-bottom: 100px; line-height: 1.6; color: #1e293b; }
+        
+        .navbar { background: var(--primary); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .btn-nav { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; font-weight: bold; }
+        
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+
+        /* Blocuri Teorie */
+        .norisor-teorie { 
+            background: white; border-radius: 25px; padding: 35px; margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 2px solid #bae6fd;
+        }
+        .important { background: #fff7ed; border-left: 5px solid var(--accent); padding: 15px; margin: 15px 0; border-radius: 5px; }
+
+        /* Containere Simulatoare */
+        .canvas-container {
+            background: white; border-radius: 15px; padding: 40px 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-bottom: 40px;
+        }
+
+        .misiune-box {
+            background: var(--primary); color: white; padding: 15px 25px;
+            border-radius: 12px; font-size: 1.3rem; margin-bottom: 15px;
+            display: inline-block; min-width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        canvas { background: #fff; cursor: pointer; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; }
+        
+        .progress-bar { background: #e2e8f0; border-radius: 10px; height: 10px; width: 300px; margin: 10px auto; overflow: hidden; }
+        .progress-fill { background: var(--success); height: 100%; width: 0%; transition: 0.3s; }
+        
+        .feedback { margin: 15px 0; font-weight: bold; font-size: 1.1rem; height: 25px; }
+        .btn-reset { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+
+        /* Stiluri Simulator Aproximări */
+        .sim-aproximare { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 20px; }
+        .number-display { font-size: 3rem; font-weight: bold; color: var(--primary); text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .ordin-label { font-size: 1.3rem; color: var(--accent); font-weight: bold; text-transform: uppercase; background: #fffbeb; padding: 5px 15px; border-radius: 20px; }
+        
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 550px; }
+        .input-item { display: flex; flex-direction: column; align-items: flex-start; }
+        .input-item label { font-size: 0.95rem; margin-bottom: 5px; color: #475569; font-weight: 600; }
+        .input-item input { width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 10px; font-size: 1.2rem; outline: none; transition: 0.2s; }
+        .input-item input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1); }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <div style="font-size: 1.5rem; font-weight: bold;">MATEMATICĂ - CLASA A V-A</div>
+    <a href="index.html" class="btn-nav">🏠 ÎNAPOI LA LECȚII</a>
+</div>
+
+<div class="container">
+    
+    <div class="norisor-teorie">
+        <h2 style="color: var(--primary); margin-top: 0;">📏 2.1. Reprezentarea pe axă</h2>
+        <p>Axa numerelor naturale este o dreaptă pe care am ales:</p>
+        <ul>
+            <li><b>Originea:</b> un punct \( O \) căruia îi corespunde numărul \( 0 \).</li>
+            <li><b>Un sens:</b> indicat de o săgeată (sensul de creștere).</li>
+            <li><b>O unitate de măsură:</b> un segment \( u \).</li>
+        </ul>
+        <div class="important">
+            💡 <b>Reține:</b> Fiecărui număr natural îi corespunde un punct unic pe axă. Distanța de la origine la punctul \( A(n) \) este de \( n \) unități de măsură.
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <h3>🎯 Joc: Fixează coordonatele pe axă</h3>
+        <div id="game-ui-axa">
+            <div class="misiune-box">Găsește coordonata: <b id="targetNum" style="color: var(--accent);">?</b></div>
+            <div id="feedbackAxa" class="feedback"></div>
+            <canvas id="axaCanvas" width="850" height="160"></canvas>
+            <div style="margin-top: 15px;">
+                <b>Progres:</b> <span id="foundCount">0</span> / 20 numere găsite
+                <div class="progress-bar"><div id="pFill" class="progress-fill"></div></div>
+            </div>
+            <button class="btn-reset" onclick="resetAxa()">Resetează jocul</button>
+        </div>
+        <div id="win-message" style="display:none; padding: 20px;">
+            <h1 style="color: var(--success);">🏆 BRAVO! Ai completat toată axa!</h1>
+            <button class="btn-reset" onclick="resetAxa()">JOACĂ DIN NOU</button>
+        </div>
+    </div>
+
+    <div class="norisor-teorie">
+        <h2 style="color: var(--primary); margin-top: 0;">⚖️ 2.2. Compararea și ordonarea</h2>
+        <p>A compara două numere naturale \( a \) și \( b \) înseamnă a stabili dacă \( a < b \), \( a = b \) sau \( a > b \).</p>
+        <ul>
+            <li>Dintre două numere cu un <b>număr diferit de cifre</b>, este mai mare cel cu mai multe cifre.</li>
+            <li>Dacă au <b>același număr de cifre</b>, se compară cifrele de același ordin, de la stânga la dreapta.</li>
+        </ul>
+        <div class="important">
+            💡 Pe axa numerelor, dintre două numere naturale, cel mai mare se află la <b>dreapta</b> celuilalt.
+        </div>
+    </div>
+
+    <div class="norisor-teorie">
+        <h2 style="color: var(--primary); margin-top: 0;">🎯 2.3. Aproximări, estimări și rotunjiri</h2>
+        <p>Aproximarea unui număr natural la un anumit ordin înseamnă înlocuirea lui cu cel mai apropiat număr format din zeci, sute, mii etc.</p>
+        <ul>
+            <li><b>Prin lipsă:</b> Se înlocuiesc cifrele de după ordin cu zero.</li>
+            <li><b>Prin adaos:</b> Se mărește cifra ordinului cu o unitate și restul devin zero.</li>
+            <li><b>Prin rotunjire:</b> Este aproximarea (prin lipsă sau adaos) cea mai apropiată de număr.</li>
+        </ul>
+        <div class="important">
+            💡 <b>Regula rotunjirii:</b> Dacă prima cifră care se înlocuiește cu zero este <b>0, 1, 2, 3 sau 4</b>, rotunjirea coincide cu aproximarea prin lipsă. Dacă este <b>5, 6, 7, 8 sau 9</b>, rotunjirea coincide cu aproximarea prin adaos.
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <h3>🤖 Simulator Multi-Ordin: Zeci, Sute și Mii</h3>
+        <p>Completează aproximările pentru numărul de mai jos la ordinul indicat:</p>
+        
+        <div class="sim-aproximare">
+            <div class="ordin-label" id="ordinLabel">Se încarcă...</div>
+            <div class="number-display" id="randNumber">---</div>
+            
+            <div class="input-grid">
+                <div class="input-item">
+                    <label>Aproximare prin LIPSĂ:</label>
+                    <input type="number" id="inLipsa">
+                </div>
+                <div class="input-item">
+                    <label>Aproximare prin ADAOS:</label>
+                    <input type="number" id="inAdaos">
+                </div>
+                <div style="grid-column: span 2;" class="input-item">
+                    <label>ROTUNJIRE (regula 0-4 / 5-9):</label>
+                    <input type="number" id="inRotunjire">
+                </div>
+            </div>
+
+            <div id="approxFeedback" class="feedback"></div>
+            <div style="display: flex; gap: 15px;">
+                <button class="btn-reset" onclick="checkApprox()">Verifică răspunsurile</button>
+                <button class="btn-reset" style="background:#64748b" onclick="generateApproxTask()">Alt număr / ordin</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* --- SCRIPT AXĂ --- */
+    const canvas = document.getElementById('axaCanvas');
+    const ctx = canvas.getContext('2d');
+    const targetDisplay = document.getElementById('targetNum');
+    const feedAxa = document.getElementById('feedbackAxa');
+    const countDisplay = document.getElementById('foundCount');
+    const pFill = document.getElementById('pFill');
+    const unitSize = 38, margin = 45, centerY = 85;
+    let currentTarget = null, foundPoints = [], remainingNumbers = [];
+
+    function resetAxa() {
+        foundPoints = [];
+        remainingNumbers = Array.from({length: 20}, (_, i) => i + 1);
+        document.getElementById('win-message').style.display = 'none';
+        document.getElementById('game-ui-axa').style.display = 'block';
+        drawAxa();
+        nextTarget();
+    }
+
+    function nextTarget() {
+        if (remainingNumbers.length === 0) {
+            document.getElementById('game-ui-axa').style.display = 'none';
+            document.getElementById('win-message').style.display = 'block';
+            return;
+        }
+        const idx = Math.floor(Math.random() * remainingNumbers.length);
+        currentTarget = remainingNumbers[idx];
+        targetDisplay.innerText = currentTarget;
+        countDisplay.innerText = foundPoints.length;
+        pFill.style.width = (foundPoints.length * 5) + "%";
+    }
+
+    function drawAxa() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = '#1e293b';
+        ctx.moveTo(margin, centerY); ctx.lineTo(canvas.width - margin, centerY); ctx.stroke();
+        ctx.fillStyle = '#1e293b'; ctx.beginPath();
+        ctx.moveTo(canvas.width - margin, centerY); ctx.lineTo(canvas.width - margin - 12, centerY - 6);
+        ctx.lineTo(canvas.width - margin - 12, centerY + 6); ctx.fill();
+        for (let i = 0; i <= 20; i++) {
+            const x = margin + i * unitSize;
+            ctx.beginPath(); ctx.moveTo(x, centerY - 8); ctx.lineTo(x, centerY + 8);
+            ctx.strokeStyle = (i === 0) ? '#000' : '#cbd5e1';
+            ctx.lineWidth = (i === 0) ? 3 : 1; ctx.stroke();
+            if(i === 0) {
+                ctx.font = "bold 16px Arial"; ctx.fillStyle = "#000"; ctx.textAlign = "center";
+                ctx.fillText("O", x, centerY - 20); ctx.fillText("0", x, centerY + 25);
+            }
+            if(foundPoints.includes(i)) {
+                ctx.beginPath(); ctx.arc(x, centerY, 5, 0, Math.PI * 2);
+                ctx.fillStyle = "#10b981"; ctx.fill();
+                ctx.font = "bold 14px Arial"; ctx.fillText(i, x, centerY + 25);
+            }
+        }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clickedVal = Math.round((e.clientX - rect.left - margin) / unitSize);
+        if (clickedVal === currentTarget) {
+            feedAxa.style.color = "#10b981"; feedAxa.innerText = "Corect! " + currentTarget + " a fost salvat.";
+            foundPoints.push(currentTarget);
+            remainingNumbers = remainingNumbers.filter(n => n !== currentTarget);
+            drawAxa(); setTimeout(() => { feedAxa.innerText = ""; nextTarget(); }, 700);
+        } else if (clickedVal > 0 && clickedVal <= 20) {
+            feedAxa.style.color = "#ef4444"; feedAxa.innerText = "Greșit! Mai numără o dată.";
+        }
+    });
+
+    /* --- SCRIPT APROXIMĂRI --- */
+    let currentNum = 0, currentOrdin = 10;
+
+    function generateApproxTask() {
+        const ordini = [10, 100, 1000];
+        currentOrdin = ordini[Math.floor(Math.random() * ordini.length)];
+        
+        if(currentOrdin === 10) {
+            currentNum = Math.floor(Math.random() * 90) + 10; 
+            document.getElementById('ordinLabel').innerText = "La ZECI";
+        } else if(currentOrdin === 100) {
+            currentNum = Math.floor(Math.random() * 900) + 100;
+            document.getElementById('ordinLabel').innerText = "La SUTE";
+        } else {
+            currentNum = Math.floor(Math.random() * 9000) + 1000;
+            document.getElementById('ordinLabel').innerText = "La MII";
+        }
+
+        document.getElementById('randNumber').innerText = currentNum;
+        document.getElementById('inLipsa').value = '';
+        document.getElementById('inAdaos').value = '';
+        document.getElementById('inRotunjire').value = '';
+        document.getElementById('approxFeedback').innerText = '';
+    }
+
+    function checkApprox() {
+        const iLipsa = parseInt(document.getElementById('inLipsa').value);
+        const iAdaos = parseInt(document.getElementById('inAdaos').value);
+        const iRot = parseInt(document.getElementById('inRotunjire').value);
+        const feed = document.getElementById('approxFeedback');
+
+        const rest = currentNum % currentOrdin;
+        const lipsa = currentNum - rest;
+        const adaos = lipsa + currentOrdin;
+        const cifraControl = Math.floor(rest / (currentOrdin / 10));
+        const rotunjire = (cifraControl < 5) ? lipsa : adaos;
+
+        if (iLipsa === lipsa && iAdaos === adaos && iRot === rotunjire) {
+            feed.style.color = "#10b981"; feed.innerText = "Excelent! Toate sunt corecte.";
+        } else {
+            feed.style.color = "#ef4444"; feed.innerText = `Atenție! Corect: Lipsă:${lipsa}, Adaos:${adaos}, Rotunjire:${rotunjire}`;
+        }
+    }
+
+    // Inițializare
+    resetAxa();
+    generateApproxTask();
+</script>
+
+</body>
+</html>
