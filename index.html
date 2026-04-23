@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Culegere Digitală - Meniu Principal</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- SECȚIUNE AUTENTIFICARE --- */
+        .auth-box {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #94a3b8; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { background: #1d4ed8; }
+        .toggle-link { margin-top: 15px; font-size: 13px; color: #60a5fa; cursor: pointer; display: block; }
+
+        /* --- MENIU LECȚII --- */
+        #main-menu {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+            padding-bottom: 50px;
+        }
+
+        .lesson-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            text-decoration: none;
+            color: var(--text);
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            background: #2d3748;
+        }
+
+        .lesson-card span { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+        .lesson-card h3 { margin: 0; font-size: 16px; }
+
+        .btn-logout { width: auto; background: #ef4444; padding: 8px 15px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="auth-section" class="auth-box">
+        <h2 id="auth-title">Autentificare</h2>
+        <div class="input-group">
+            <label>Nume Utilizator</label>
+            <input type="text" id="username" placeholder="Introdu numele...">
+        </div>
+        <div class="input-group">
+            <label>Parolă</label>
+            <input type="password" id="password" placeholder="Introdu parola...">
+        </div>
+        <button id="auth-btn" onclick="handleAuth()">Intră în cont</button>
+        <span class="toggle-link" id="toggle-text" onclick="toggleMode()">Nu ai cont? Înregistrează-te</span>
+    </div>
+
+    <div id="main-menu">
+        <div class="header">
+            <div>
+                <h1 style="margin:0">Culegere Digitală</h1>
+                <p id="user-display" style="color: #60a5fa; margin: 5px 0;"></p>
+            </div>
+            <button class="btn-logout" onclick="logout()">Ieșire</button>
+        </div>
+
+        <div class="grid-container" id="lessons-grid">
+            </div>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+        let currentUser = null;
+
+        const titluriLectii = [
+            "Scrierea și citirea numerelor naturale", "Reprezentarea pe axă", "Adunarea numerelor naturale",
+            "Scăderea numerelor naturale", "Înmulțirea numerelor naturale", "Factor comun",
+            "Împărțirea cu rest 0", "Împărțirea cu rest", "Puterea cu exponent natural",
+            "Reguli de calcul cu puteri", "Compararea puterilor", "Scrierea în baza 10/2",
+            "Ordinea efectuării operațiilor", "Metoda reducerii la unitate", "Metoda comparației",
+            "Metoda figurativă", "Metoda mersului invers", "Metoda falsei ipoteze",
+            "Divizibilitatea", "Criterii de divizibilitate", "Numere prime/compuse",
+            "Fracții ordinare", "Compararea fracțiilor", "Introducerea întregilor",
+            "C.M.M.D.C", "C.M.M.M.C", "Adunarea fracțiilor", "Înmulțirea fracțiilor",
+            "Împărțirea fracțiilor", "Puterea unei fracții", "Fracții dintr-un număr",
+            "Fracții zecimale", "Aproximări", "Adunarea zecimalelor", "Înmulțirea zecimalelor",
+            "Media aritmetică", "Împărțirea zecimalelor", "Număr rațional pozitiv",
+            "Unități de măsură", "Organizarea datelor", "Punct, dreaptă, plan",
+            "Poziții relative", "Lungimea segmentelor", "Mijlocul unui segment",
+            "Unghiul", "Măsura unghiurilor", "Clasificarea unghiurilor",
+            "Figuri congruente", "Unități de lungime", "Unități de arie", "Unități de volum"
+        ];
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('auth-title').innerText = isLoginMode ? "Autentificare" : "Creare Cont";
+            document.getElementById('auth-btn').innerText = isLoginMode ? "Intră în cont" : "Creează Cont";
+            document.getElementById('toggle-text').innerText = isLoginMode ? "Nu ai cont? Înregistrează-te" : "Ai deja cont? Autentifică-te";
+        }
+
+        function handleAuth() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+
+            if (!u || !p) return alert("Completează toate câmpurile!");
+
+            if (isLoginMode) {
+                const savedPass = localStorage.getItem(`user_${u}`);
+                if (savedPass === p) {
+                    startApp(u);
+                } else {
+                    alert("Utilizator sau parolă incorectă!");
+                }
+            } else {
+                if (localStorage.getItem(`user_${u}`)) return alert("Utilizatorul există deja!");
+                localStorage.setItem(`user_${u}`, p);
+                alert("Cont creat! Acum te poți loga.");
+                toggleMode();
+            }
+        }
+
+        function startApp(user) {
+            currentUser = user;
+            sessionStorage.setItem("activeUser", user); // Păstrăm sesiunea
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
+            document.getElementById('user-display').innerText = "Elev logat: " + user;
+            generateLessons();
+        }
+
+        function generateLessons() {
+            const grid = document.getElementById('lessons-grid');
+            grid.innerHTML = "";
+
+            titluriLectii.forEach((titlu, index) => {
+                const nr = index + 1;
+                const card = document.createElement('a');
+                card.className = 'lesson-card';
+                card.href = `lectia${nr}.html`; // Aici se face legătura cu fișierele separate
+                card.innerHTML = `
+                    <div>
+                        <span>Lecția ${nr}</span>
+                        <h3>${titlu}</h3>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            location.reload();
+        }
+
+        // Verifică dacă există sesiune activă la refresh
+        window.onload = () => {
+            const sessionUser = sessionStorage.getItem("activeUser");
+            if(sessionUser) startApp(sessionUser);
+        }
+    </script>
+</body>
+</html>
