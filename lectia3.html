@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Surpriza lui Alex pentru Lili</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #ffeef8;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .stage {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid #ffb3d9;
+        }
+
+        /* Personajul Alex (Avatar simplu) */
+        .alex {
+            width: 120px;
+            height: 120px;
+            background: #ff99cc;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 4px solid #d63384;
+        }
+
+        .alex:hover { transform: scale(1.1) rotate(5deg); }
+
+        /* Ochii lui Alex */
+        .alex::before, .alex::after {
+            content: '●';
+            position: absolute;
+            top: 40px;
+            font-size: 20px;
+            color: #4b0082;
+        }
+        .alex::before { left: 30px; }
+        .alex::after { right: 30px; }
+
+        /* Gura */
+        .mouth {
+            width: 40px;
+            height: 20px;
+            border-bottom: 5px solid #d63384;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 30px;
+            left: 40px;
+        }
+
+        .label-name {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #d63384;
+            font-size: 1.5rem;
+        }
+
+        .bubble {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #ffb3d9;
+            display: none; /* Ascuns la început */
+            font-weight: bold;
+            color: #4b0082;
+            position: relative;
+        }
+
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #f8f9fa transparent;
+        }
+
+        .heart-icon {
+            color: #ff4d6d;
+            font-size: 3rem;
+            display: none;
+            animation: beat 0.8s infinite;
+        }
+
+        @keyframes beat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bubble" id="chatBubble">Lili, te iubesc! ❤️</div>
+
+    <div class="stage">
+        <div class="alex" onclick="speakAlex()">
+            <div class="mouth" id="mouth"></div>
+        </div>
+        <div class="label-name">ALEX</div>
+        <div class="heart-icon" id="heart">❤️</div>
+    </div>
+
+    <p style="margin-top: 20px; color: #666;">Apasă pe Alex să îi spună lui Lili mesajul!</p>
+
+    <script>
+        function speakAlex() {
+            const msg = "Lili, te iubesc!";
+            
+            // 1. Vizual
+            document.getElementById('chatBubble').style.display = 'block';
+            document.getElementById('heart').style.display = 'block';
+            document.getElementById('mouth').style.height = '30px'; // Deschide gura
+
+            // 2. Audio (Vocea calculatorului)
+            const utterance = new SpeechSynthesisUtterance(msg);
+            utterance.lang = 'ro-RO'; // Setăm limba română
+            utterance.pitch = 1.2;    // Voce puțin mai veselă
+            utterance.rate = 0.9;     // Viteza vorbirii
+
+            window.speechSynthesis.speak(utterance);
+
+            // Resetăm gura după ce termină de vorbit
+            utterance.onend = () => {
+                document.getElementById('mouth').style.height = '20px';
+            };
+        }
+    </script>
+</body>
+</html>
